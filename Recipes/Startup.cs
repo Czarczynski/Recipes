@@ -1,3 +1,7 @@
+using System;
+using System.IO;
+using System.Reflection;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +28,10 @@ namespace Recipes
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("SQLConnection")));
+            
             services.AddControllers();
+            services.AddAutoMapper
+                (typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Recipes", Version = "v1"}); });
         }
 
@@ -34,8 +41,8 @@ namespace Recipes
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Recipes v1"));
+                app.UseSwagger(c => c.SerializeAsV2 = true);
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Project v1"));
             }
 
             app.UseHttpsRedirection();
