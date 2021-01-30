@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Recipes.Services;
+
 //TODO: delete secrets from launchSettings
 namespace Recipes
 {
@@ -28,7 +29,7 @@ namespace Recipes
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("SQLConnection")));
-            
+
             services.AddControllers();
             services.AddAutoMapper
                 (typeof(AutoMapperProfile).Assembly);
@@ -41,9 +42,10 @@ namespace Recipes
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger(c => c.SerializeAsV2 = true);
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Project v1"));
             }
+
+            app.UseSwagger(c => c.SerializeAsV2 = true);
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Project v1"));
 
             app.UseHttpsRedirection();
 
