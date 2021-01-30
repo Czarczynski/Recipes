@@ -33,7 +33,9 @@ namespace Recipes.Controllers
         {
             try
             {
-                var user = _context.Users.First(x => x.Email == body.Email);
+                if(string.IsNullOrEmpty(body.Email) ||string.IsNullOrEmpty(body.Password)) throw new UnauthorizedAccessException();
+                var user = _context.Users.FirstOrDefault(x => x.Email == body.Email);
+                if (user == null) throw new UnauthorizedAccessException();
 
                 if (SecurePasswordHasher.Verify(body.Password, user.Password))
                 {
