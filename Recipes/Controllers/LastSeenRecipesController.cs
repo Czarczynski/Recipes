@@ -18,7 +18,7 @@ using static System.Int32;
 namespace Recipes.Controllers
 {
     [ApiController]
-    [Route("api/user/recipes/lastseen")]
+    [Route("api/lastseen")]
     public class LastSeenRecipesController : Controller
     {
         private readonly ILogger<LastSeenRecipesController> _logger;

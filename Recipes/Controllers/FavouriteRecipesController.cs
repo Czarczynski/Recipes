@@ -18,7 +18,7 @@ using static System.Int32;
 namespace Recipes.Controllers
 {
     [ApiController]
-    [Route("api/user/recipes/favourites")]
+    [Route("api/favourites")]
     public class FavouriteRecipesController : Controller
     {
         private readonly ILogger<FavouriteRecipesController> _logger;
