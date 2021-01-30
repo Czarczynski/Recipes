@@ -18,14 +18,14 @@ using static System.Int32;
 namespace Recipes.Controllers
 {
     [ApiController]
-    [Route("api/user/recipes/favourites")]
-    public class FavouritesRecipesController : Controller
+    [Route("api/user/recipes/lastseen")]
+    public class LastSeenRecipesController : Controller
     {
-        private readonly ILogger<FavouritesRecipesController> _logger;
+        private readonly ILogger<LastSeenRecipesController> _logger;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
 
-        public FavouritesRecipesController(ILogger<FavouritesRecipesController> logger, ApplicationDbContext context,
+        public LastSeenRecipesController(ILogger<LastSeenRecipesController> logger, ApplicationDbContext context,
             IMapper mapper)
         {
             _context = context;
@@ -47,10 +47,10 @@ namespace Recipes.Controllers
                 var claims = authService.GetTokenClaims(token).ToList();
                 var userId = Parse(claims.FirstOrDefault(e => e.Type.Equals(ClaimTypes.Name))?.Value ?? "0");
                 var list = new List<DTOShortDbRecipeModel>();
-                _context.UserFavouriteRecipes.Where(x => x.UserId == userId).ToList()
+                _context.UserLastSeenRecipes.Where(x => x.UserId == userId).ToList()
                     .ForEach(x => list.Add(_mapper.Map<DTOShortDbRecipeModel>(x)));
 
-                return new OkObjectResult(list);
+                return new OkObjectResult(list.OrderByDescending(x=> x.AddedDate));
             }
             catch (Exception ex)
             {
@@ -71,12 +71,23 @@ namespace Recipes.Controllers
 
                 var claims = authService.GetTokenClaims(token).ToList();
                 var userId = Parse(claims.FirstOrDefault(e => e.Type.Equals(ClaimTypes.Name))?.Value ?? "0");
-                var obj = _mapper.Map<UserFavouriteRecipes>(body);
+                var obj = _mapper.Map<UserLastSeenRecipes>(body);
                 obj.UserId = userId;
                 obj.AddedDate = DateTime.Now;
-                var item = _context.UserFavouriteRecipes.Add(obj).Entity;
-                _context.SaveChanges();
 
+                var item = _context.UserLastSeenRecipes.FirstOrDefault(x =>
+                    x.UserId == obj.UserId && x.RecipeId == obj.RecipeId);
+                if (item == null)
+                {
+                    
+                item = _context.UserLastSeenRecipes.Add(obj).Entity;
+                }
+                else
+                {
+                    item.AddedDate = DateTime.Now;
+                }
+
+                _context.SaveChanges();
                 return new CreatedResult("", _mapper.Map<DTOShortDbRecipeModel>(item));
             }
             catch (Exception ex)
@@ -99,9 +110,9 @@ namespace Recipes.Controllers
                 var claims = authService.GetTokenClaims(token).ToList();
                 var userId = Parse(claims.FirstOrDefault(e => e.Type.Equals(ClaimTypes.Name))?.Value ?? "0");
                 var itemToRemove =
-                    _context.UserFavouriteRecipes.FirstOrDefault(x => x.UserId == userId && x.RecipeId == recipeId);
-                if (itemToRemove == null) throw new Exception("This recipe is not in favourites' list of that user");
-                _context.UserFavouriteRecipes.Remove(itemToRemove);
+                    _context.UserLastSeenRecipes.FirstOrDefault(x => x.UserId == userId && x.RecipeId == recipeId);
+                if (itemToRemove == null) return new NotFoundObjectResult(new{error="This recipe could not be found on history list of that user"});
+                _context.UserLastSeenRecipes.Remove(itemToRemove);
                 _context.SaveChanges();
                 return new OkObjectResult("Deleted");
             }

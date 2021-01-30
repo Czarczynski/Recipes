@@ -35,6 +35,10 @@ namespace Recipes.Controllers
         {
             try
             {
+                if (_context.Users.FirstOrDefault(x => x.Email == body.Email) != null)
+                {
+                    return new BadRequestObjectResult("Given email is already used");
+                } 
                 body.Password = SecurePasswordHasher.Hash(body.Password);
                 _context.Users.Add(body);
 

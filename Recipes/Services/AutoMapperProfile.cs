@@ -7,16 +7,20 @@ namespace Recipes.Services
     {
         public AutoMapperProfile()
         {
+            //User
             CreateMap<Users,DTOUserModel>();
             
+            //Favourites
             CreateMap<UserFavouriteRecipes,DTOShortDbRecipeModel>();
             
             CreateMap<DTORecipeAddToDbModel,UserFavouriteRecipes>();
             CreateMap<UserFavouriteRecipes,DTORecipeAddToDbModel>(); // reversed
             
+            //LastSeen
             CreateMap<UserLastSeenRecipes,DTOShortDbRecipeModel>();
             
-            CreateMap<DTOShortDbRecipeModel,DTORecipeAddToDbModel>(); //reversed
+            CreateMap<DTORecipeAddToDbModel,UserLastSeenRecipes>();
+            CreateMap<UserLastSeenRecipes,DTORecipeAddToDbModel>(); // reversed
         }
         
     }
