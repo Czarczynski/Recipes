@@ -11,6 +11,7 @@ using Recipes.Common;
 using Recipes.Helpers;
 using Recipes.Models;
 using Recipes.Services;
+using Recipes.TokenGenerator;
 using Recipes.TokenGenerator.Managers;
 using static System.Int32;
 namespace Recipes.Controllers
@@ -44,11 +45,17 @@ namespace Recipes.Controllers
                     return new BadRequestObjectResult("Given email is already used");
                 } 
                 body.Password = SecurePasswordHasher.Hash(body.Password);
-                _context.Users.Add(body);
+                var user = _context.Users.Add(body).Entity;
 
                 _context.SaveChanges();
+                
+                IAuthContainerModel model = JwtFunctions.GetJwtContainerModel(user.Id, user.Email);
+                IAuthService authService = new JwtService(model.SecretKey);
 
-                return new OkObjectResult(new {user = body});
+                var token = authService.GenerateToken(model);
+
+                return new OkObjectResult(new
+                    {token, expiresIn = model.ExpireMinutes, user = _mapper.Map<DTOUserModel>(user)});
             }
             catch (Exception ex)
             {
