@@ -35,6 +35,10 @@ namespace Recipes.Controllers
         {
             try
             {
+                if (body.Password.Length < 8)
+                {
+                    return new BadRequestObjectResult("Password is too short");
+                }
                 if (_context.Users.FirstOrDefault(x => x.Email == body.Email) != null)
                 {
                     return new BadRequestObjectResult("Given email is already used");
