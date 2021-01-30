@@ -49,14 +49,14 @@ namespace Recipes.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUser()
+        public IActionResult GetUser()
         {
             try
             {
                 Request.Headers.TryGetValue("Authorization", out var auth);
                 var token = auth.First().Remove(0, "Bearer ".Length);
                 IAuthService authService = new JwtService(Consts.SECRET);
-                if (!authService.IsTokenValid(token)) throw new UnauthorizedAccessException("Token is not valid");
+                if (!authService.IsTokenValid(token)) return new UnauthorizedResult();
                 
                 var claims = authService.GetTokenClaims(token).ToList();
                 var userId = Parse(claims.FirstOrDefault(e => e.Type.Equals(ClaimTypes.Name))?.Value ?? "0");
@@ -64,7 +64,6 @@ namespace Recipes.Controllers
 
                 return new OkObjectResult(new
                 {user = _mapper.Map<DTOUserModel>(user)});
-                return new OkObjectResult(auth);
             }
             catch (Exception ex)
             {

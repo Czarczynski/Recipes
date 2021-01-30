@@ -9,5 +9,7 @@ namespace Recipes.Services
         }
 
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<UserFavouriteRecipes> UserFavouriteRecipes { get; set; }
+        public virtual DbSet<UserLastSeenRecipes> UserLastSeenRecipes { get; set; }
     }
 }
