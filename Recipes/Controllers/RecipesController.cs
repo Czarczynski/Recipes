@@ -31,8 +31,8 @@ namespace Recipes.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetRecipesList()
+        [HttpPost]
+        public async Task<IActionResult> GetRecipesList([FromBody] ComplexSearch body)
         {
             try
             {
@@ -48,6 +48,8 @@ namespace Recipes.Controllers
                 var client = new RestClient(Consts.EXT_API_URL);
                 var request = new RestRequest("complexSearch", Method.GET);
                 request.AddQueryParameter("apiKey", $"{Consts.SPOONACULAR_API_KEY}");
+                if (!string.IsNullOrEmpty(body.Query)) request.AddQueryParameter("query", body.Query);
+                if (!string.IsNullOrEmpty(body.Cuisine)) request.AddQueryParameter("cuisine", body.Cuisine);
                 request.AddQueryParameter("number", "100");
                 var response = await client.ExecuteAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
@@ -90,5 +92,11 @@ namespace Recipes.Controllers
                 return new BadRequestObjectResult(new {error = ex});
             }
         }
+    }
+
+    public class ComplexSearch
+    {
+        public string Query { get; set; } = null;
+        public string Cuisine { get; set; } = null;
     }
 }
