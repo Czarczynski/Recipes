@@ -88,7 +88,12 @@ namespace Recipes.Controllers
                 }
 
                 _context.SaveChanges();
-                return new CreatedResult("", _mapper.Map<DTOShortDbRecipeModel>(item));
+                
+                var list = new List<DTOShortDbRecipeModel>();
+                _context.UserLastSeenRecipes.Where(x => x.UserId == userId).ToList()
+                    .ForEach(x => list.Add(_mapper.Map<DTOShortDbRecipeModel>(x)));
+
+                return new OkObjectResult(list.OrderByDescending(x=> x.AddedDate));
             }
             catch (Exception ex)
             {
